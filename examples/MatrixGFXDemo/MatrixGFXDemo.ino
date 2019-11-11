@@ -1,3 +1,8 @@
+
+
+// TODO: use adapt to NeoPixelBusGfx
+
+
 // Adafruit_NeoMatrix example for single NeoPixel Shield.
 // By Marc MERLIN <marc_soft@merlins.org>
 // Contains code (c) Adafruit, license BSD

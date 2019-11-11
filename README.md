@@ -1,9 +1,9 @@
-Adafruit_NeoMatrix. Whoa.
+NeoPixelBusGfx. Whoa.
 =========================
 
-Adafruit_GFX-compatible library for NeoPixel matrices and grids. Controls single and tiled NeoPixel displays such as the [Adafruit NeoPixel Shield][shield] or grids assembled from [Adafruit 60 LED/meter Digital LED strip][strip]. Requires Adafruit_NeoPixel and Adafruit_GFX libraries.
+Adafruit_GFX-compatible library for NeoPixelBus library. It supports everything which is supported by NeoPixelBus. Requires NeoPixelBus and Adafruit_GFX libraries.
 
-After downloading, rename folder to 'Adafruit_NeoMatrix' and install in Arduino Libraries folder. Restart Arduino IDE, then open File->Sketchbook->Library->Adafruit_NeoMatrix->matrixtest sketch.
+* Note that not all examples are converted currently.
+* Note that NeoPixelBrightnessBus is currently not supported.
 
-[shield]: http://adafruit.com/products/1430
-[strip]:  http://adafruit.com/products/1138
+After downloading, rename folder to 'NeoPixelBusGfx' and install in Arduino Libraries folder. Restart Arduino IDE, then open File->Sketchbook->Library->NeoPixelBusGfx->matrixtest sketch.

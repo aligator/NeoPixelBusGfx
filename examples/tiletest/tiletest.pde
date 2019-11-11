@@ -1,3 +1,8 @@
+
+
+// TODO: use adapt to NeoPixelBusGfx
+
+
 // Adafruit_NeoMatrix example for tiled NeoPixel matrices.  Scrolls
 // 'Howdy' across three 10x8 NeoPixel grids that were created using
 // NeoPixel 60 LEDs per meter flex strip.
