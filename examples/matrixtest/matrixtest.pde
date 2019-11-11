@@ -1,7 +1,6 @@
 // NeoPixelBusGfx example for a simple 32 x 8 pixel matrix.
 // Scrolls 'Howdy' across the matrix in a portrait (vertical) orientation.
 
-#include <Adafruit_GFX.h>
 #include <NeoPixelBusGfx.h>
 #include <NeoPixelBus.h>
 #ifndef PSTR
