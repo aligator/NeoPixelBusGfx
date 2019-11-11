@@ -1,19 +1,21 @@
 // NeoPixelBusGfx example for a simple 32 x 8 pixel matrix.
 // Scrolls 'Howdy' across the matrix in a portrait (vertical) orientation.
 
-#include <NeoPixelBusGfx.h>
-#include <NeoPixelBus.h>
+#include <NeoPixelBrightnessBusGfx.h>
+#include <NeoPixelBrightnessBus.h>
 #ifndef PSTR
  #define PSTR // Make Arduino Due happy
 #endif
 
-#define PIN 3
+// Pins are method specific. See https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object-API
+#define DATA_PIN 2
+
 #define WIDTH 32
 #define HEIGHT 8
 
 // See NeoPixelBus documentation for choosing the correct Feature and Method
 // (https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object)
-NeoPixelBusGfx<NeoGrbFeature, NeoEsp8266DmaWs2812xMethod> matrix(WIDTH, HEIGHT);
+NeoPixelBrightnessBusGfx<NeoGrbFeature, Neo800KbpsMethod> matrix(WIDTH, HEIGHT, DATA_PIN);
 
 // See NeoPixelBus documentation for choosing the correct NeoTopology
 // you may also use NeoTile or NeoMosaik 
@@ -36,8 +38,7 @@ void setup() {
   matrix.setRemapFunction(&remap);
 
   matrix.setTextWrap(false);
-  // brightness currently not supported
-  // matrix.SetBrightness(40);
+  matrix.SetBrightness(40);
   matrix.setTextColor(colors[0]);
 }
 

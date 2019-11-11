@@ -27,6 +27,7 @@
 #endif
 #include <Adafruit_GFX.h>
 #include <NeoPixelBrightnessBus.h>
+#include "NeoGfx.h"
 
 #include "gamma.h"
 #ifdef __AVR__
@@ -50,113 +51,56 @@ class NeoPixelBrightnessBusGfx : public Adafruit_GFX, public NeoPixelBrightnessB
     NeoPixelBrightnessBusGfx(int w, int h, uint8_t pin) :
       Adafruit_GFX(w, h),
       NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>(w * h, pin),
-      matrixWidth(w), matrixHeight(h), remapFn(NULL)
+      neoGfx(NeoGfx<T_COLOR_FEATURE, T_METHOD, NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>>(w, h, this))
     {
     }
 
     NeoPixelBrightnessBusGfx(int w, int h, uint8_t pinClock, uint8_t pinData) :
       Adafruit_GFX(w, h),
       NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>(w * h, pinClock, pinData),
-      matrixWidth(w), matrixHeight(h), remapFn(NULL)
+      neoGfx(NeoGfx<T_COLOR_FEATURE, T_METHOD, NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>>(w, h, this))
     {
     }
 
     NeoPixelBrightnessBusGfx(int w, int h) :
       Adafruit_GFX(w, h),
       NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>(w * h),
-      matrixWidth(w), matrixHeight(h), remapFn(NULL)
+      neoGfx(NeoGfx<T_COLOR_FEATURE, T_METHOD, NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>>(w, h, this))
     {
     }
 
+    protected:
+    NeoGfx<T_COLOR_FEATURE, T_METHOD, NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>> neoGfx;
+
+  public:
+
     void drawPixel(int16_t x, int16_t y, uint16_t color) {
-      if((x < 0) || (y < 0) || (x >= _width) || (y >= _height)) return;
-
-      int16_t t;
-      switch(rotation) {
-      case 1:
-        t = x;
-        x = WIDTH  - 1 - y;
-        y = t;
-        break;
-      case 2:
-        x = WIDTH  - 1 - x;
-        y = HEIGHT - 1 - y;
-        break;
-      case 3:
-        t = x;
-        x = y;
-        y = HEIGHT - 1 - t;
-        break;
-      }
-
-      int tileOffset = 0;
-      int pixelOffset = 0;
-
-      if(remapFn) { // Custom X/Y remapping function
-        pixelOffset = (*remapFn)(x, y);
-      }
-      
-      this->SetPixelColor(tileOffset + pixelOffset, 
-        passThruFlag ? RgbColor(HtmlColor(passThruColor))  : RgbColor(HtmlColor(expandColor(color))));
+      neoGfx.drawPixel(x, y, color, _width, _height, rotation, WIDTH, HEIGHT);
     }
 
     void fillScreen(uint16_t color) {
-      uint16_t i, n;
-      uint32_t c;
-
-      c = passThruFlag ? passThruColor : expandColor(color);
-      n = this->PixelCount();
-
-      for(i=0; i<n; i++) this->SetPixelColor(i, RgbColor(HtmlColor(c)));
+      neoGfx.fillScreen(color);
     }
 
-    // Pass-through is a kludge that lets you override the current drawing
-    // color with a 'raw' RGB (or RGBW) value that's issued directly to
-    // pixel(s), side-stepping the 16-bit color limitation of Adafruit_GFX.
-    // This is not without some limitations of its own -- for example, it
-    // won't work in conjunction with the background color feature when
-    // drawing text or bitmaps (you'll just get a solid rect of color),
-    // only 'transparent' text/bitmaps.  Also, no gamma correction.
-    // Remember to UNSET the passthrough color immediately when done with
-    // it (call with no value)!
-
-    // Pass raw color value to set/enable passthrough
     void setPassThruColor(uint32_t c) {
-      passThruColor = c;
-      passThruFlag  = true;
+      neoGfx.setPassThruColor(c);
     }
 
-    // Call without a value to reset (disable passthrough)
     void setPassThruColor(void) {
-      passThruFlag = false;
+      neoGfx.setPassThruColor();
     }
     
     void setRemapFunction(uint16_t (*fn)(uint16_t, uint16_t)) {
-      remapFn = fn;
+      neoGfx.setRemapFunction(fn);
     }
 
-    // Expand 16-bit input color (Adafruit_GFX colorspace) to 24-bit (NeoPixel)
-    // (w/gamma adjustment)
+    uint16_t Color(uint8_t r, uint8_t g, uint8_t b) {
+      return neoGfx.Color(r, g, b);
+    }
+
     static uint32_t expandColor(uint16_t color) {
-      return ((uint32_t)pgm_read_byte(&gamma5[ color >> 11       ]) << 16) |
-              ((uint32_t)pgm_read_byte(&gamma6[(color >> 5) & 0x3F]) <<  8) |
-                        pgm_read_byte(&gamma5[ color       & 0x1F]);
+      return NeoGfx<T_COLOR_FEATURE, T_METHOD, NeoPixelBrightnessBus<T_COLOR_FEATURE, T_METHOD>>::expandColor(color);
     }
-
-    // Downgrade 24-bit color to 16-bit (add reverse gamma lookup here?)
-    static uint16_t Color(uint8_t r, uint8_t g, uint8_t b) {
-      return ((uint16_t)(r & 0xF8) << 8) |
-              ((uint16_t)(g & 0xFC) << 3) |
-                        (b         >> 3);
-    }
-
- protected:
-
-  const uint8_t matrixWidth, matrixHeight;
-  uint16_t (*remapFn)(uint16_t x, uint16_t y);
-
-  uint32_t passThruColor;
-  boolean passThruFlag = false;
 };
 
 #endif // _ADAFRUIT_NEOPIXELBRIGHTNESSBUSGFX_H_
