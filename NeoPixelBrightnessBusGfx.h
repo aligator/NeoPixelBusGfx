@@ -74,11 +74,11 @@ class NeoPixelBrightnessBusGfx : public Adafruit_GFX, public NeoPixelBrightnessB
 
   public:
 
-    void drawPixel(int16_t x, int16_t y, uint16_t color) {
+    void drawPixel(int16_t x, int16_t y, uint16_t color) override {
       neoGfx.drawPixel(x, y, color, _width, _height, rotation, WIDTH, HEIGHT);
     }
 
-    void fillScreen(uint16_t color) {
+    void fillScreen(uint16_t color) override {
       neoGfx.fillScreen(color);
     }
 

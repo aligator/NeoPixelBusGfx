@@ -28,7 +28,7 @@ const uint16_t colors[] = {
 // use a remap function to remap based on the topology, tile or mosaik
 // this function is passed as remap function to the matrix
 uint16_t remap(uint16_t x, uint16_t y) {
-  return topo.MapProbe(x, y);
+  return topo.Map(x, y);
 }
 
 void setup() {
