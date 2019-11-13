@@ -1,5 +1,7 @@
-NeoPixelBusGfx. Whoa.
-=========================
+NeoPixelBusGfx
+===============
+
+Note: I am using the same version numbers like NeoMatrix but with an additional number. -> Only the tags with 4 numbers are NeoPixelBusGfx and compatible with NeoPixelBus
 
 Adafruit_GFX-compatible library for NeoPixelBus library. It supports everything which is supported by NeoPixelBus. Requires NeoPixelBus and Adafruit_GFX libraries.
 
