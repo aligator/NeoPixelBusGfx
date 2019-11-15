@@ -3,6 +3,11 @@
   "keywords": "adafruit, neomatrix, neopixel, led, onewire, 1-wire, bus, neopixelbus, NeoPixel, WS2811, WS2812, WS2813, SK6812, DotStar, APA102, SK9822, APA106, LPD8806, RGB, RGBW",
   "description": "Adafruit_GFX-compatible library for NeoPixel grids using NeoPixelBus. Based on Adafruit_NeoMatrix.",
   "homepage": "https://github.com/aligator/NeoPixelBusGfx",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/aligator/NeoPixelBusGfx.git"
+  }
   "authors": 
   [
     {
