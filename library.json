@@ -31,6 +31,11 @@
       "name": "Adafruit GFX Library",
       "authors": "Michael Miller",
       "frameworks": "arduino"
+    },
+    {
+      "name": "NeoPixelBus",
+      "authors": "Michael Miller",
+      "frameworks": "arduino"
     }
   ],
   "version": "1.0.0",

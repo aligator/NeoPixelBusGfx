@@ -1,13 +1,19 @@
 NeoPixelBusGfx
 ===============
 
-Adafruit_GFX-compatible library for NeoPixelBus library. It supports everything which is supported by NeoPixelBus. Requires NeoPixelBus and Adafruit_GFX libraries.
+When I searched for a library to use with the NeoPixel(-compatible) led, I noticed that the original Adafruit_GFX causes some serious flickering on an ESP.  
+NeoPixelBus instead works great but does not provide the GFX methods Adafruit_GFX provides.
+
+That's why I just combined them and created a (nearly) drop-in replacement of Adafruit_GFX which just uses NeoPixelBus to draw the stuff.  
+That means it supports all led's which NeoPixelBus supports and provides the GFX tools from Adafruit_GFX.
+
+But in the background it still uses these libs, so it requires NeoPixelBus and Adafruit_GFX libraries to run.
 
 # Examples in Arduino IDE
 
 After downloading, rename folder to 'NeoPixelBusGfx' and install in Arduino Libraries folder.
 
-To run the examples you need the following depencies. They should be available in the arduino ide library manager):
+To run the examples you need the following decencies. They should be available in the arduino ide library manager):
 * [adafruit/Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
 * [makuna/NeoPixelBus](https://github.com/Makuna/NeoPixelBus)
 * [adafruit/Adafruit BusIO](https://github.com/adafruit/Adafruit_BusIO)
@@ -62,4 +68,7 @@ void setup() {
   //...
 }
 ```
-The remap function is then used to map the pixels to the chosen topography.
+The remap function is then used to map the pixels to the chosen topography.  
+
+One side not:  
+In most cases methods starting with a capital letter are from NeoPixelBus and all other methods are from Adafruit_GFX or the NeoPixelBusGfx lib.
