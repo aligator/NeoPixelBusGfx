@@ -82,6 +82,10 @@ class NeoPixelBusGfx : public Adafruit_GFX, public NeoPixelBus<T_COLOR_FEATURE, 
       neoGfx.fillScreen(color);
     }
 
+    void clear() {
+      neoGfx.fillScreen(0);
+    }
+
     void setPassThruColor(uint32_t c) {
       neoGfx.setPassThruColor(c);
     }

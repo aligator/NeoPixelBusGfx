@@ -82,6 +82,10 @@ class NeoPixelBrightnessBusGfx : public Adafruit_GFX, public NeoPixelBrightnessB
       neoGfx.fillScreen(color);
     }
 
+    void clear() {
+      neoGfx.fillScreen(0);
+    }
+
     void setPassThruColor(uint32_t c) {
       neoGfx.setPassThruColor(c);
     }

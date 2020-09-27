@@ -1,15 +1,9 @@
-
-
-// TODO: use adapt to NeoPixelBusGfx
-
-
-// Adafruit_NeoMatrix example for single NeoPixel Shield.
+// NeoPixelBusGfx example for single NeoPixel Shield.
 // By Marc MERLIN <marc_soft@merlins.org>
 // Contains code (c) Adafruit, license BSD
 
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoMatrix.h>
-#include <Adafruit_NeoPixel.h>
+#include <NeoPixelBrightnessBusGfx.h>
+#include <NeoPixelBrightnessBus.h>
 
 // Choose your prefered pixmap
 //#include "heart24.h"
@@ -20,14 +14,8 @@
  #define PSTR // Make Arduino Due happy
 #endif
 
-#define PIN 6
-
-// ESP8266 has an I2S neopixel library which can only use pin RX
-// so it's recommended to use the same pin with Neopixel to avoid
-// rewiring when changing libs
-#ifdef ESP8266
-#define PIN RX
-#endif
+// Pins are method specific. See https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object-API
+#define PIN 2
 
 // Max is 255, 32 is a conservative value to not overload
 // a USB power supply (500mA) for 12x12 pixels.
@@ -37,44 +25,14 @@
 #define mw 24
 #define mh 24
 
-// MATRIX DECLARATION:
-// Parameter 1 = width of EACH NEOPIXEL MATRIX (not total display)
-// Parameter 2 = height of each matrix
-// Parameter 3 = number of matrices arranged horizontally
-// Parameter 4 = number of matrices arranged vertically
-// Parameter 5 = pin number (most are valid)
-// Parameter 6 = matrix layout flags, add together as needed:
-//   NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
-//     Position of the FIRST LED in the FIRST MATRIX; pick two, e.g.
-//     NEO_MATRIX_TOP + NEO_MATRIX_LEFT for the top-left corner.
-//   NEO_MATRIX_ROWS, NEO_MATRIX_COLUMNS: LEDs WITHIN EACH MATRIX are
-//     arranged in horizontal rows or in vertical columns, respectively;
-//     pick one or the other.
-//   NEO_MATRIX_PROGRESSIVE, NEO_MATRIX_ZIGZAG: all rows/columns WITHIN
-//     EACH MATRIX proceed in the same order, or alternate lines reverse
-//     direction; pick one.
-//   NEO_TILE_TOP, NEO_TILE_BOTTOM, NEO_TILE_LEFT, NEO_TILE_RIGHT:
-//     Position of the FIRST MATRIX (tile) in the OVERALL DISPLAY; pick
-//     two, e.g. NEO_TILE_TOP + NEO_TILE_LEFT for the top-left corner.
-//   NEO_TILE_ROWS, NEO_TILE_COLUMNS: the matrices in the OVERALL DISPLAY
-//     are arranged in horizontal rows or in vertical columns, respectively;
-//     pick one or the other.
-//   NEO_TILE_PROGRESSIVE, NEO_TILE_ZIGZAG: the ROWS/COLUMS OF MATRICES
-//     (tiles) in the OVERALL DISPLAY proceed in the same order for every
-//     line, or alternate lines reverse direction; pick one.  When using
-//     zig-zag order, the orientation of the matrices in alternate rows
-//     will be rotated 180 degrees (this is normal -- simplifies wiring).
-//   See example below for these values in action.
-// Parameter 7 = pixel type flags, add together as needed:
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 pixels)
-//   NEO_GRB     Pixels are wired for GRB bitstream (v2 pixels)
-//   NEO_KHZ400  400 KHz bitstream (e.g. FLORA v1 pixels)
-//   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip)
+// See NeoPixelBus documentation for choosing the correct Feature and Method
+// (https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object)
+NeoPixelBrightnessBusGfx<NeoGrbFeature, Neo800KbpsMethod> *matrix = new NeoPixelBrightnessBusGfx<NeoGrbFeature, Neo800KbpsMethod>(mw, mh, PIN);
 
-Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(mw, mh, PIN,
-  NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
-  NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG,
-  NEO_GRB            + NEO_KHZ800);
+// See NeoPixelBus documentation for choosing the correct NeoTopology
+// you may also use NeoTile or NeoMosaik 
+// (https://github.com/Makuna/NeoPixelBus/wiki/Matrix-Panels-Support)
+NeoTopology<ColumnMajorAlternating180Layout> topo(mw, mh);
 
 // This could also be defined as matrix->color(255,0,0) but those defines
 // are meant to work for adafruit_gfx backends that are lacking color()
@@ -291,37 +249,38 @@ static const uint16_t PROGMEM
 	0x000, 0x000, 0x00F, 0x00F, 0x00F, 0x00F, 0x000, 0x000, },
 };
 
-
 // Convert a BGR 4/4/4 bitmap to RGB 5/6/5 used by Adafruit_GFX
 void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, int16_t h) {
-    uint16_t RGB_bmp_fixed[w * h];
+    // work around "a15 cannot be used in asm here" compiler bug when using an array on ESP8266
+    // uint16_t RGB_bmp_fixed[w * h];
+    static uint16_t *RGB_bmp_fixed = (uint16_t *) malloc( w*h*2);
     for (uint16_t pixel=0; pixel<w*h; pixel++) {
-	uint8_t r,g,b;
-	uint16_t color = pgm_read_word(bitmap + pixel);
+      uint8_t r,g,b;
+      uint16_t color = pgm_read_word(bitmap + pixel);
 
-	//Serial.print(color, HEX);
-	b = (color & 0xF00) >> 8;
-	g = (color & 0x0F0) >> 4;
-	r = color & 0x00F;
-	//Serial.print(" ");
-	//Serial.print(b);
-	//Serial.print("/");
-	//Serial.print(g);
-	//Serial.print("/");
-	//Serial.print(r);
-	//Serial.print(" -> ");
-	// expand from 4/4/4 bits per color to 5/6/5
-	b = map(b, 0, 15, 0, 31);
-	g = map(g, 0, 15, 0, 63);
-	r = map(r, 0, 15, 0, 31);
-	//Serial.print(r);
-	//Serial.print("/");
-	//Serial.print(g);
-	//Serial.print("/");
-	//Serial.print(b);
-	RGB_bmp_fixed[pixel] = (r << 11) + (g << 5) + b;
-	//Serial.print(" -> ");
-	//Serial.println(RGB_bmp_fixed[pixel], HEX);
+      //Serial.print(color, HEX);
+      b = (color & 0xF00) >> 8;
+      g = (color & 0x0F0) >> 4;
+      r = color & 0x00F;
+      //Serial.print(" ");
+      //Serial.print(b);
+      //Serial.print("/");
+      //Serial.print(g);
+      //Serial.print("/");
+      //Serial.print(r);
+      //Serial.print(" -> ");
+      // expand from 4/4/4 bits per color to 5/6/5
+      b = map(b, 0, 15, 0, 31);
+      g = map(g, 0, 15, 0, 63);
+      r = map(r, 0, 15, 0, 31);
+      //Serial.print(r);
+      //Serial.print("/");
+      //Serial.print(g);
+      //Serial.print("/");
+      //Serial.print(b);
+      RGB_bmp_fixed[pixel] = (r << 11) + (g << 5) + b;
+      //Serial.print(" -> ");
+      //Serial.println(RGB_bmp_fixed[pixel], HEX);
     }
     matrix->drawRGBBitmap(x, y, RGB_bmp_fixed, w, h);
 }
@@ -333,7 +292,7 @@ void display_four_white() {
     matrix->drawRect(1,1, mw-2,mh-2, LED_WHITE_MEDIUM);
     matrix->drawRect(2,2, mw-4,mh-4, LED_WHITE_LOW);
     matrix->drawRect(3,3, mw-6,mh-6, LED_WHITE_VERYLOW);
-    matrix->show();
+    matrix->Show();
 }
 
 void display_bitmap(uint8_t bmp_num, uint16_t color) { 
@@ -348,7 +307,7 @@ void display_bitmap(uint8_t bmp_num, uint16_t color) {
     if (bmx >= mw) bmx = 0;
     if (!bmx) bmy += 8;
     if (bmy >= mh) bmy = 0;
-    matrix->show();
+    matrix->Show();
 }
 
 void display_rgbBitmap(uint8_t bmp_num) { 
@@ -359,7 +318,7 @@ void display_rgbBitmap(uint8_t bmp_num) {
     if (bmx >= mw) bmx = 0;
     if (!bmx) bmy += 8;
     if (bmy >= mh) bmy = 0;
-    matrix->show();
+    matrix->Show();
 }
 
 void display_lines() {
@@ -380,7 +339,7 @@ void display_lines() {
     // Diagonal blue line.
     matrix->drawLine(0,0, mw-1,mh-1, LED_BLUE_HIGH);
     matrix->drawLine(0,mh-1, mw-1,0, LED_ORANGE_MEDIUM);
-    matrix->show();
+    matrix->Show();
 }
 
 void display_boxes() {
@@ -389,7 +348,7 @@ void display_boxes() {
     matrix->drawRect(1,1, mw-2,mh-2, LED_GREEN_MEDIUM);
     matrix->fillRect(2,2, mw-4,mh-4, LED_RED_HIGH);
     matrix->fillRect(3,3, mw-6,mh-6, LED_ORANGE_MEDIUM);
-    matrix->show();
+    matrix->Show();
 }
 
 void display_circles() {
@@ -400,7 +359,7 @@ void display_circles() {
     matrix->drawCircle(1,mh-2, 1, LED_GREEN_LOW);
     matrix->drawCircle(mw-2,1, 1, LED_GREEN_HIGH);
     if (min(mw,mh)>12) matrix->drawCircle(mw/2-1, mh/2-1, min(mh/2-1,mw/2-1), LED_CYAN_HIGH);
-    matrix->show();
+    matrix->Show();
 }
 
 void display_resolution() {
@@ -425,7 +384,7 @@ void display_resolution() {
 	else if (mh>=13) {
 	    matrix->setCursor(mw-11, 8);
 	} else {
-	    matrix->show();
+	    matrix->Show();
 	    delay(2000);
 	    matrix->clear();
 	    matrix->setCursor(mw-11, 0);
@@ -450,7 +409,7 @@ void display_resolution() {
 	matrix->print("*");
     }
     
-    matrix->show();
+    matrix->Show();
 }
 
 void display_scrollText() {
@@ -468,7 +427,7 @@ void display_scrollText() {
 	    matrix->setTextColor(LED_ORANGE_HIGH);
 	    matrix->print("World");
 	}
-	matrix->show();
+	matrix->Show();
        delay(50);
     }
 
@@ -478,12 +437,12 @@ void display_scrollText() {
 	matrix->clear();
 	matrix->setCursor(x,mw/2-4);
 	matrix->print("Rotate");
-	matrix->show();
+	matrix->Show();
        delay(50);
     }
     matrix->setRotation(0);
     matrix->setCursor(0,0);
-    matrix->show();
+    matrix->Show();
 }
 
 // Scroll within big bitmap so that all if it becomes visible or bounce a small one.
@@ -514,7 +473,7 @@ void display_panOrBounceBitmap (uint8_t bitmapSize) {
 	if (bitmapSize == 8) fixdrawRGBBitmap(x, y, RGB_bmp[10], 8, 8);
 	// pan 24x24 pixmap
 	if (bitmapSize == 24) matrix->drawRGBBitmap(x, y, (const uint16_t *) bitmap24, bitmapSize, bitmapSize);
-	matrix->show();
+	matrix->Show();
 	 
 	// Only pan if the display size is smaller than the pixmap
 	// but not if the difference is too small or it'll look bad.
@@ -623,15 +582,25 @@ void loop() {
     display_panOrBounceBitmap(8);
 }
 
+// use a remap function to remap based on the topology, tile or mosaik
+// this function is passed as remap function to the matrix
+uint16_t remap(uint16_t x, uint16_t y) {
+  return topo.Map(x, y);
+}
+
 void setup() {
     Serial.begin(115200);
-    matrix->begin();
+
+    // pass the remap function
+    matrix->setRemapFunction(&remap);
+
+    matrix->Begin();
     matrix->setTextWrap(false);
-    matrix->setBrightness(BRIGHTNESS);
+    matrix->SetBrightness(BRIGHTNESS);
     // Test full bright of all LEDs. If brightness is too high
     // for your current limit (i.e. USB), decrease it.
     matrix->fillScreen(LED_WHITE_HIGH);
-    matrix->show();
+    matrix->Show();
     delay(1000);
     matrix->clear();
 }
