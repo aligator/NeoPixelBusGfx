@@ -13,7 +13,7 @@ But in the background it still uses these libs, so it requires NeoPixelBus and A
 
 After downloading, rename folder to 'NeoPixelBusGfx' and install in Arduino Libraries folder.
 
-To run the examples you need the following decencies. They should be available in the arduino ide library manager):
+To run the examples you need the following dependencies. They should be available in the arduino ide library manager):
 * [adafruit/Adafruit GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
 * [makuna/NeoPixelBus](https://github.com/Makuna/NeoPixelBus)
 * [adafruit/Adafruit BusIO](https://github.com/adafruit/Adafruit_BusIO)
