@@ -33,6 +33,9 @@
 // a USB power supply (500mA) for 12x12 pixels.
 #define BRIGHTNESS 32
 
+#define mw 32
+#define mh 8
+
 // See NeoPixelBus documentation for choosing the correct Feature and Method
 // (https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object)
 NeoPixelBrightnessBusGfx<NeoGrbFeature, Neo800KbpsMethod> *matrix = new NeoPixelBrightnessBusGfx<NeoGrbFeature, Neo800KbpsMethod>(mw, mh, PIN);
@@ -303,7 +306,7 @@ void count_pixels() {
 	    matrix->drawPixel(j, i, i%3==0?LED_BLUE_HIGH:i%3==1?LED_RED_HIGH:LED_GREEN_HIGH);
 	    // depending on the matrix size, it's too slow to display each pixel, so
 	    // make the scan init faster. This will however be too fast on a small matrix.
-	    if (!(j%7)) matrix->show();
+	    if (!(j%7)) matrix->Show();
 	    yield();
 	}
     }
@@ -411,7 +414,7 @@ void display_resolution() {
 	} else {
 	    // we're not tall enough either, so we wait and display
 	    // the 2nd value on top.
-	    matrix->show();
+	    matrix->Show();
 	    delay(2000);
 	    matrix->clear();
 	    matrix->setCursor(mw-11, 0);
@@ -472,8 +475,8 @@ void display_scrollText() {
 	matrix->clear();
 	matrix->setCursor(x,mw/2-size*4);
 	matrix->print("Rotate");
-	matrix->show();
-	// note that on a big array the refresh rate from show() will be slow enough that
+	matrix->Show();
+	// note that on a big array the refresh rate from Show() will be slow enough that
 	// the delay become irrelevant. This is already true on a 32x32 array.
         delay(50/size);
     }
@@ -487,7 +490,7 @@ void display_scrollText() {
 // be both panned and bounced in the appropriate dimensions.
 void display_panOrBounceBitmap (uint8_t bitmapSize) {
     // keep integer math, deal with values 16 times too big
-    // start by showing upper left of big bitmap or centering if the display is big
+    // start by Showing upper left of big bitmap or centering if the display is big
     int16_t xf = max(0, (mw-bitmapSize)/2) << 4;
     int16_t yf = max(0, (mh-bitmapSize)/2) << 4;
     // scroll speed in 1/16th
@@ -513,7 +516,7 @@ void display_panOrBounceBitmap (uint8_t bitmapSize) {
 #ifdef BM32
 	if (bitmapSize == 32) matrix->drawRGBBitmap(x, y, (const uint16_t *) bitmap32, bitmapSize, bitmapSize);
 #endif
-	matrix->show();
+	matrix->Show();
 	 
 	// Only pan if the display size is smaller than the pixmap
 	// but not if the difference is too small or it'll look bad.
@@ -565,9 +568,9 @@ void loop() {
     // 200 displays in 13 seconds = 15 frames per second for 4096 pixels
     for (uint8_t i=0; i<100; i++) { 
 	matrix->fillScreen(LED_BLUE_LOW);
-	matrix->show();
+	matrix->Show();
 	matrix->fillScreen(LED_RED_LOW);
-	matrix->show();
+	matrix->Show();
     }
 #endif
 
@@ -658,7 +661,7 @@ void setup() {
     // Test full bright of all LEDs. If brightness is too high
     // for your current limit (i.e. USB), decrease it.
     matrix->fillScreen(LED_WHITE_HIGH);
-    matrix->show();
+    matrix->Show();
     delay(3000);
     matrix->clear();
 }
