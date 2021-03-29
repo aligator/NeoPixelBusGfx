@@ -46,7 +46,10 @@ int x    = matrix.width();
 int pass = 0;
 
 void loop() {
+  matrix.setPassThruColor(RgbColor(10, 0, 0));
   matrix.fillScreen(0);
+  matrix.setPassThruColor();
+  
   matrix.setCursor(x, 0);
   matrix.print(F("Howdy"));
   if(--x < -36) {
