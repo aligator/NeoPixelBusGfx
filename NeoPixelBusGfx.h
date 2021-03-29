@@ -143,7 +143,8 @@ class NeoPixelBusGfx : public Adafruit_GFX, public NeoPixelBus<T_COLOR_FEATURE, 
 
     /**
      * @brief  Pass-through is a kludge that lets you override the current
-     *         drawing color with a 'raw' RGB (or RGBW) value that's issued
+     *         drawing color with a 'raw' RGB (NOT RGBW!, use RgbwColor(...) instead, 
+     *         see deprecation note) value that's issued
      *         directly to pixel(s), side-stepping the 16-bit color limitation
      *         of Adafruit_GFX. This is not without some limitations of its
      *         own -- for example, it won't work in conjunction with the
@@ -152,9 +153,28 @@ class NeoPixelBusGfx : public Adafruit_GFX, public NeoPixelBus<T_COLOR_FEATURE, 
      *         text/bitmaps.  Also, no gamma correction.
      *         Remember to UNSET the passthrough color immediately when done
      *         with it (call with no value)!
-     * @param  c  Pixel color in packed 32-bit 0RGB or WRGB format.
+     * @param  c  Pixel color in packed 32-bit 0RGB format.
+     * @deprecated Prefer usage of the NeoPixelBus colors directly (e.g. RgbColor(...) and RgbwColor(...))
+     * as the usage of a white uint32_t is not supported. (e.g. 0xFF000000 results in 0x000000 but RgbwColor(0, 0, 0, 255) works)
      */
     void setPassThruColor(uint32_t c) {
+      neoGfx.setPassThruColor(c);
+    }
+
+    /**
+     * @brief  Pass-through is a kludge that lets you override the current
+     *         drawing color with a 'NeoPixelBus' color value that's issued
+     *         directly to pixel(s), side-stepping the 16-bit color limitation
+     *         of Adafruit_GFX. This is not without some limitations of its
+     *         own -- for example, it won't work in conjunction with the
+     *         background color feature when drawing text or bitmaps (you'll
+     *         just get a solid rect of color), only 'transparent'
+     *         text/bitmaps.  Also, no gamma correction.
+     *         Remember to UNSET the passthrough color immediately when done
+     *         with it (call with no value)!
+     * @param  c  Pixel color in the format from NeoPixelBus. e.g. RgbColor(...) or RgbwColor(...)
+     */
+    void setPassThruColor(typename T_COLOR_FEATURE::ColorObject c) {
       neoGfx.setPassThruColor(c);
     }
 
