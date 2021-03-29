@@ -17,13 +17,21 @@
 // Pins are method specific. See https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object-API
 #define PIN 2
 
+//#define P32BY8X4
+#define P16BY16X4
+#if defined(P32BY8X4) || defined(P16BY16X4)
+#define BM32
+#endif
+
+#ifdef BM32
+#include "google32.h"
+// Anything with black does not look so good with the naked eye (better on pictures)
+//#include "linux32.h"
+#endif
+
 // Max is 255, 32 is a conservative value to not overload
 // a USB power supply (500mA) for 12x12 pixels.
-#define BRIGHTNESS 96
-
-// Define matrix width and height.
-#define mw 24
-#define mh 24
+#define BRIGHTNESS 32
 
 // See NeoPixelBus documentation for choosing the correct Feature and Method
 // (https://github.com/Makuna/NeoPixelBus/wiki/NeoPixelBus-object)
@@ -285,6 +293,22 @@ void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, i
     matrix->drawRGBBitmap(x, y, RGB_bmp_fixed, w, h);
 }
 
+// In a case of a tile of neomatrices, this test is helpful to make sure that the
+// pixels are all in sequence (to check your wiring order and the tile options you
+// gave to the constructor).
+void count_pixels() {
+    matrix->clear();
+    for (uint16_t i=0; i<mh; i++) {
+	for (uint16_t j=0; j<mw; j++) {
+	    matrix->drawPixel(j, i, i%3==0?LED_BLUE_HIGH:i%3==1?LED_RED_HIGH:LED_GREEN_HIGH);
+	    // depending on the matrix size, it's too slow to display each pixel, so
+	    // make the scan init faster. This will however be too fast on a small matrix.
+	    if (!(j%7)) matrix->show();
+	    yield();
+	}
+    }
+}
+
 // Fill the screen with multiple levels of white to gauge the quality
 void display_four_white() {
     matrix->clear();
@@ -363,6 +387,7 @@ void display_circles() {
 }
 
 void display_resolution() {
+    matrix->setTextSize(1);
     // not wide enough;
     if (mw<16) return;
     matrix->clear();
@@ -384,7 +409,9 @@ void display_resolution() {
 	else if (mh>=13) {
 	    matrix->setCursor(mw-11, 8);
 	} else {
-	    matrix->Show();
+	    // we're not tall enough either, so we wait and display
+	    // the 2nd value on top.
+	    matrix->show();
 	    delay(2000);
 	    matrix->clear();
 	    matrix->setCursor(mw-11, 0);
@@ -395,7 +422,7 @@ void display_resolution() {
     matrix->setTextColor(matrix->Color(0,128,255));  
     matrix->print(mh % 10);
     // enough room for a 2nd line
-    if (mw>25 && mh >14 || mh>16) {
+    if ((mw>25 && mh >14) || mh>16) {
 	matrix->setCursor(0, mh-7);
 	matrix->setTextColor(matrix->Color(0,255,255)); 
 	if (mw>16) matrix->print('*');
@@ -406,13 +433,20 @@ void display_resolution() {
 	matrix->setTextColor(matrix->Color(0,0,255)); 
 	matrix->print("B");
 	matrix->setTextColor(matrix->Color(255,255,0)); 
+	// this one could be displayed off screen, but we don't care :)
 	matrix->print("*");
+
+	// We have a big array, great, let's assume 32x32 and add something in the middle
+	if (mh>24 && mw>25) {
+	    for (uint16_t i=0; i<mw; i+=8) fixdrawRGBBitmap(i, mh/2-7+(i%16)/8*6, RGB_bmp[10], 8, 8);
+	}
     }
     
     matrix->Show();
 }
 
 void display_scrollText() {
+    uint8_t size = max(int(mw/8), 1);
     matrix->clear();
     matrix->setTextWrap(false);  // we don't wrap text so it scrolls nicely
     matrix->setTextSize(1);
@@ -432,13 +466,16 @@ void display_scrollText() {
     }
 
     matrix->setRotation(3);
+    matrix->setTextSize(size);
     matrix->setTextColor(LED_BLUE_HIGH);
-    for (int8_t x=7; x>=-45; x--) {
+    for (int16_t x=8*size; x>=-6*8*size; x--) {
 	matrix->clear();
-	matrix->setCursor(x,mw/2-4);
+	matrix->setCursor(x,mw/2-size*4);
 	matrix->print("Rotate");
-	matrix->Show();
-       delay(50);
+	matrix->show();
+	// note that on a big array the refresh rate from show() will be slow enough that
+	// the delay become irrelevant. This is already true on a 32x32 array.
+        delay(50/size);
     }
     matrix->setRotation(0);
     matrix->setCursor(0,0);
@@ -461,7 +498,7 @@ void display_panOrBounceBitmap (uint8_t bitmapSize) {
     int16_t xfdir = -1;
     int16_t yfdir = -1;
 
-    for (uint16_t i=1; i<1000; i++) {
+    for (uint16_t i=1; i<200; i++) {
 	bool updDir = false;
 
 	// Get actual x/y by dividing by 16.
@@ -473,12 +510,15 @@ void display_panOrBounceBitmap (uint8_t bitmapSize) {
 	if (bitmapSize == 8) fixdrawRGBBitmap(x, y, RGB_bmp[10], 8, 8);
 	// pan 24x24 pixmap
 	if (bitmapSize == 24) matrix->drawRGBBitmap(x, y, (const uint16_t *) bitmap24, bitmapSize, bitmapSize);
-	matrix->Show();
+#ifdef BM32
+	if (bitmapSize == 32) matrix->drawRGBBitmap(x, y, (const uint16_t *) bitmap32, bitmapSize, bitmapSize);
+#endif
+	matrix->show();
 	 
 	// Only pan if the display size is smaller than the pixmap
 	// but not if the difference is too small or it'll look bad.
 	if (bitmapSize-mw>2) {
-	    if (mw>9) xf += xfc*xfdir;
+	    xf += xfc*xfdir;
 	    if (xf >= 0)                      { xfdir = -1; updDir = true ; };
 	    // we don't go negative past right corner, go back positive
 	    if (xf <= ((mw-bitmapSize) << 4)) { xfdir = 1;  updDir = true ; };
@@ -518,6 +558,24 @@ void loop() {
     // loop back to the top left corner
     // 8x8 => 1, 16x8 => 2, 17x9 => 6
     static uint8_t pixmap_count = ((mw+7)/8) * ((mh+7)/8);
+
+// You can't use millis to time frame fresh rate because it uses cli() which breaks millis()
+// So I use my stopwatch to count 200 displays and that's good enough
+#if 0
+    // 200 displays in 13 seconds = 15 frames per second for 4096 pixels
+    for (uint8_t i=0; i<100; i++) { 
+	matrix->fillScreen(LED_BLUE_LOW);
+	matrix->show();
+	matrix->fillScreen(LED_RED_LOW);
+	matrix->show();
+    }
+#endif
+
+    count_pixels();
+    delay(1000);
+
+    display_four_white();
+    delay(3000);
 
     Serial.print("Screen pixmap capacity: ");
     Serial.println(pixmap_count);
@@ -571,11 +629,11 @@ void loop() {
     // If we have multiple pixmaps displayed at once, wait a bit longer on the last.
     delay(mw>8?1000:500);
 
-    display_four_white();
-    delay(3000);
-
     display_scrollText();
 
+#ifdef BM32
+    display_panOrBounceBitmap(32);
+#endif
     // pan a big pixmap
     display_panOrBounceBitmap(24);
     // bounce around a small one
@@ -600,8 +658,8 @@ void setup() {
     // Test full bright of all LEDs. If brightness is too high
     // for your current limit (i.e. USB), decrease it.
     matrix->fillScreen(LED_WHITE_HIGH);
-    matrix->Show();
-    delay(1000);
+    matrix->show();
+    delay(3000);
     matrix->clear();
 }
 
