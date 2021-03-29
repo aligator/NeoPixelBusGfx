@@ -1,5 +1,4 @@
-NeoPixelBusGfx
-===============
+# NeoPixelBusGfx [![Build Status](https://github.com/aligator/NeoPixelBusGfx/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/aligator/NeoPixelBusGfx/actions)
 
 When I searched for a library to use with the NeoPixel(-compatible) led, I noticed that the original Adafruit_GFX causes some serious flickering on an ESP.  
 NeoPixelBus instead works great but does not provide the GFX methods Adafruit_GFX provides.
