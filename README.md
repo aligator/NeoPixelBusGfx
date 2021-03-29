@@ -23,11 +23,12 @@ To run the examples you need the following dependencies. They should be availabl
 
 Add this to your platformio.ini of your project.
 ```
-lib_deps = 
-	adafruit/Adafruit GFX Library
-	makuna/NeoPixelBus
-	adafruit/Adafruit BusIO
-    Wire
+lib_deps =
+  aligator/NeoPixelBusGfx
+  adafruit/Adafruit GFX Library
+  makuna/NeoPixelBus
+  adafruit/Adafruit BusIO
+  Wire
 ```
 
 If you want to run the examples with PlatformIO, just create a new PlatformIO project and copy the example code into it.
