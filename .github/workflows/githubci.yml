@@ -19,12 +19,15 @@ jobs:
     - name: pre-install
       run: bash ci/actions_install.sh
     
-    - if [ ! -d "$HOME/arduino_ide/libraries/Adafruit-GFX-Library" ]; then git clone https://github.com/adafruit/Adafruit-GFX-Library.git $HOME/arduino_ide/libraries/Adafruit-GFX-Library; fi
+    - name: Adafruit-GFX-Library
+      run: if [ ! -d "$HOME/arduino_ide/libraries/Adafruit-GFX-Library" ]; then git clone https://github.com/adafruit/Adafruit-GFX-Library.git $HOME/arduino_ide/libraries/Adafruit-GFX-Library; fi
+      
+    - name: NeoPixelBus
+      run: if [ ! -d "$HOME/arduino_ide/libraries/NeoPixelBus" ]; then git clone https://github.com/Makuna/NeoPixelBus.git $HOME/arduino_ide/libraries/NeoPixelBus; fi
 
-    - if [ ! -d "$HOME/arduino_ide/libraries/NeoPixelBus" ]; then git clone https://github.com/Makuna/NeoPixelBus.git $HOME/arduino_ide/libraries/NeoPixelBus; fi
-
-    - if [ ! -d "$HOME/arduino_ide/libraries/Adafruit_BusIO" ]; then git clone https://github.com/adafruit/Adafruit_BusIO.git $HOME/arduino_ide/libraries/Adafruit_BusIO; fi
-
+    - name: Adafruit_BusIO
+      run: if [ ! -d "$HOME/arduino_ide/libraries/Adafruit_BusIO" ]; then git clone https://github.com/adafruit/Adafruit_BusIO.git $HOME/arduino_ide/libraries/Adafruit_BusIO; fi
+    
     - name: test platforms
       run: python3 ci/build_platform.py main_platforms
 
