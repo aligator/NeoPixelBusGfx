@@ -86,7 +86,15 @@ class NeoPixelBusGfx : public Adafruit_GFX, public NeoPixelBus<T_COLOR_FEATURE, 
       neoGfx.fillScreen(0);
     }
 
+    /**
+     * @deprecated Prefer usage of the NeoPixelBus colors directly (e.g. RgbColor(...) and RgbwColor(...))
+     * as the usage of a white uint32_t is not supported. (e.g. 0xFF000000 results in 0x000000 but RgbwColor(0, 0, 0, 255) works)
+     */
     void setPassThruColor(uint32_t c) {
+      neoGfx.setPassThruColor(c);
+    }
+
+    void setPassThruColor(typename T_COLOR_FEATURE::ColorObject c) {
       neoGfx.setPassThruColor(c);
     }
 

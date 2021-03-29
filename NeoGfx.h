@@ -85,17 +85,17 @@ class NeoGfx {
       }
       
       ((T_NEO_PIXEL_BUS*) neoPixelBus)->SetPixelColor(tileOffset + pixelOffset, 
-        passThruFlag ? RgbColor(HtmlColor(passThruColor))  : RgbColor(HtmlColor(expandColor(color))));
+        passThruFlag ? passThruColor  : RgbColor(HtmlColor(expandColor(color))));
     }
 
     void fillScreen(uint16_t color) {
       uint16_t i, n;
-      uint32_t c;
+      typename T_COLOR_FEATURE::ColorObject c;
 
-      c = passThruFlag ? passThruColor : expandColor(color);
+      c = passThruFlag ? passThruColor : RgbColor(HtmlColor(expandColor(color)));
       n = neoPixelBus->PixelCount();
 
-      for(i=0; i<n; i++) ((T_NEO_PIXEL_BUS*) neoPixelBus)->SetPixelColor(i, RgbColor(HtmlColor(c)));
+      for(i=0; i<n; i++) ((T_NEO_PIXEL_BUS*) neoPixelBus)->SetPixelColor(i, c);
     }
 
     // Pass-through is a kludge that lets you override the current drawing
@@ -110,7 +110,16 @@ class NeoGfx {
 
     // Pass raw color value to set/enable passthrough
     void setPassThruColor(uint32_t c) {
-      passThruColor = c;
+      passThruColor =  RgbColor(HtmlColor(c));
+      passThruFlag  = true;
+    }
+
+    /**
+     * @deprecated Prefer usage of the NeoPixelBus colors directly (e.g. RgbColor(...) and RgbwColor(...))
+     * as the usage of a white uint32_t is not supported. (e.g. 0xFF000000 results in 0x000000 but RgbwColor(0, 0, 0, 255) works)
+     */
+    void setPassThruColor(typename T_COLOR_FEATURE::ColorObject c) {
+      passThruColor =  c;
       passThruFlag  = true;
     }
 
@@ -142,7 +151,7 @@ class NeoGfx {
     const uint8_t matrixWidth, matrixHeight;
     uint16_t (*remapFn)(uint16_t x, uint16_t y);
 
-    uint32_t passThruColor;
+    typename T_COLOR_FEATURE::ColorObject passThruColor;
     boolean passThruFlag = false;
 
     NeoPixelBus<T_COLOR_FEATURE, T_METHOD>* neoPixelBus;
