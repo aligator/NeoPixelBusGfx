@@ -65,6 +65,7 @@
 #endif
 
 #include <Adafruit_GFX.h>
+#include <NeoPixelBrightnessBus.h>
 
 #include "gamma.h"
 #ifdef __AVR__
