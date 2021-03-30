@@ -2,39 +2,6 @@
  * @file NeoGfx.h
  * Based on https://github.com/adafruit/Adafruit_NeoMatrix
  *
- * @mainpage GFX-compatible layer for NeoPixel matrices by using NeoPixelBus
- * internally.
- *
- * @section intro_sec Introduction
- *
- * Arduino library to control single and tiled matrices of WS2811- and
- * WS2812-based RGB LED devices such as the Adafruit NeoPixel Shield or
- * displays assembled from NeoPixel strips, making them compatible with
- * the Adafruit_GFX graphics library.
- * It is adapted to use the NeoPixelBus https://github.com/Makuna/NeoPixelBus
- * library instead of Adafruit_NeoPixel.
- *
- * @section dependencies Dependencies
- *
- * This library depends on <a
- * href="https://github.com/Makuna/NeoPixelBus"> NeoPixelBus</a>,
- * <a href="https://github.com/adafruit/Adafruit-GFX-Library"> Adafruit_GFX</a>
- * and <a href="https://github.com/adafruit/Adafruit_BusIO"> Adafruit_BusIO</a>
- * being present on your system. Please make sure you have installed the
- * latest versions before using this library.
- *
- * @section author Author
- *
- * Adafruit invests time and resources providing this open source code,
- * please support Adafruit and open-source hardware by purchasing
- * products from Adafruit!
- *
- * Written by Phil Burgess / Paint Your Dragon for Adafruit Industries.
- * Adapted to be compatible to NeoPixelBus by Johannes Hörmann
- * (https://github.com/aligator)
- *
- * @section license License
- *
  * This file is part of the Adafruit NeoPixelBusGfx library and is based on
  * based on https://github.com/adafruit/Adafruit_NeoMatrix.
  *
